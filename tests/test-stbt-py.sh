@@ -108,7 +108,7 @@ test_using_frames_to_measure_black_screen() {
 	
 	def is_black_screen(img):
 	    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-	    _, img = cv2.threshold(img, 10, 255, cv2.THRESH_BINARY)
+	    _, img = cv2.threshold(img, 30, 255, cv2.THRESH_BINARY)
 	    _, maxVal, _, _ = cv2.minMaxLoc(img)
 	    return maxVal == 0
 	
@@ -171,7 +171,7 @@ test_that_video_index_is_written_on_eos() {
 	EOF
     stbt-run -v \
         --sink-pipeline \
-            "queue ! vp8enc speed=7 ! webmmux ! filesink location=video.webm" \
+            "queue ! vp8enc ! webmmux ! filesink location=video.webm" \
         test.py &&
     webminspector.py video.webm &> webminspector.log &&
     grep "Cue Point" webminspector.log || {

@@ -37,7 +37,7 @@ mkdir -p ~/.config/stbt
 cat > ~/.config/stbt/stbt.conf <<-EOF
 	[global]
 	# Source pipeline for the Hauppauge HD PVR video-capture device.
-	#source_pipeline = v4l2src device=/dev/video0 ! mpegtsdemux ! video/x-h264 ! decodebin2
+	#source_pipeline = v4l2src device=/dev/video0 ! tsdemux ! video/x-h264 ! decodebin
 	
 	# Handle loss of video (but without end-of-stream event) from the video
 	# capture device. Set to "True" if you're using the Hauppauge HD PVR.

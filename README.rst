@@ -106,7 +106,7 @@ Global options
   A GStreamer pipeline providing a video stream to use as video output from the
   set-top box under test.  For the Hauppauge HD PVR use::
 
-      v4l2src device=/dev/video0 ! mpegtsdemux ! video/x-h264 ! decodebin2
+      v4l2src device=/dev/video0 ! tsdemux ! video/x-h264 ! decodebin
 
 --sink-pipeline=<pipeline>
   A GStreamer pipeline to use for video output, like `xvimagesink`.
@@ -265,7 +265,7 @@ SOFTWARE REQUIREMENTS
 
 * Drivers for any required hardware components.
 
-* GStreamer 0.10 (multimedia framework) + gstreamer-plugins-base +
+* GStreamer 1.0 (multimedia framework) + gstreamer-plugins-base +
   gstreamer-plugins-good.
 
 * python (we have tested with 2.6 and 2.7; on <2.7 you will also need to
@@ -275,7 +275,7 @@ SOFTWARE REQUIREMENTS
 * OpenCV (image processing library) version >= 2.0.0, and the OpenCV python
   bindings.
 
-* For the Hauppauge video capture device you'll need the gstreamer-ffmpeg
+* For the Hauppauge video capture device you'll need the gstreamer-libav
   package (e.g. from the rpmfusion-free repository) for H.264 decoding.
 
 
