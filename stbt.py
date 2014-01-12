@@ -18,6 +18,7 @@ import os
 import Queue
 import re
 import socket
+import subprocess
 import sys
 import threading
 import time
@@ -92,6 +93,14 @@ def press(key):
     """
     _control.press(key)
     draw_text(key, duration_secs=3)
+
+
+def touch(position):
+    _control.touch(position)
+
+
+def type(text):
+    _control.type(text)
 
 
 def draw_text(text, duration_secs=3):
@@ -668,7 +677,18 @@ def argparser():
 def init_run(
         gst_source_pipeline, gst_sink_pipeline, control_uri, save_video=False,
         restart_source=False):
-    global _display, _control
+
+    global _display, _control, _adb
+
+    try:
+        os.remove("android-screenshots")
+    except OSError:
+        pass
+    os.mkfifo("android-screenshots")
+    _adb = subprocess.Popen(
+        r"adb shell 'while true; do screencap -p; sleep 1; done' | perl -pe 's/\x0D\x0A/\x0A/g' > android-screenshots",
+        shell=True)
+
     _display = Display(
         gst_source_pipeline, gst_sink_pipeline, save_video, restart_source)
     _control = uri_to_remote(control_uri, _display)
@@ -677,6 +697,13 @@ def init_run(
 def teardown_run():
     if _display:
         _display.teardown()
+
+    if _adb:
+        _adb.terminate()
+        try:
+            os.remove("android-screenshots")
+        except OSError:
+            pass
 
 
 # Internal
@@ -1091,6 +1118,10 @@ def uri_to_remote(uri, display):
         d = irnb.groupdict()
         return IRNetBoxRemote(
             d['hostname'], int(d['port'] or 10001), d['output'], d['config'])
+
+    if uri.lower() == 'android':
+        return AndroidControl()
+
     raise ConfigurationError('Invalid remote control URI: "%s"' % uri)
 
 
@@ -1258,6 +1289,18 @@ class IRNetBoxRemote:
                 self.hostname, e)),)
             e.strerror = e.args[0]
             raise
+
+
+class AndroidControl:
+    def __init__(self):
+        pass
+
+    def touch(self, position):
+        subprocess.check_call([
+            "adb", "shell", "input", "tap", str(position.x), str(position.y)])
+
+    def type(self, text):
+        subprocess.check_call(["adb", "shell", "input", "text", text])
 
 
 def uri_to_remote_recorder(uri):
